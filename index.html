@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diet Adapt Pro - V24 Info Fix</title>
+    <title>Diet Adapt Pro - V27 Large Tabs</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="database.js"></script>
@@ -11,15 +11,19 @@
         .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .group:hover .tooltip-box { visibility: visible; opacity: 1; transform: translateY(0); }
         .tooltip-box { transition: all 0.2s ease-in-out; transform: translateY(-5px); scrollbar-width: thin; }
+        .tap-active:active { transform: scale(0.9); }
+        /* Style pour masquer la scrollbar mais garder le scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen pb-24 font-sans text-slate-900">
 
 <div id="app" class="max-w-md mx-auto p-4 space-y-6">
     
-    <div v-if="currentDay" class="flex bg-slate-200 p-1 rounded-2xl shadow-inner border border-slate-300">
-        <button @click="currentTab = 'today'" :class="currentTab === 'today' ? 'bg-indigo-600 shadow-lg text-white' : 'text-slate-500'" class="flex-1 py-2 rounded-xl text-xs font-black transition-all uppercase tracking-widest text-shadow">Aujourd'hui</button>
-        <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-indigo-600 shadow-lg text-white' : 'text-slate-500'" class="flex-1 py-2 rounded-xl text-xs font-black transition-all uppercase tracking-widest">📅 Journal</button>
+    <div v-if="currentDay" class="flex bg-slate-200 p-1.5 rounded-2xl shadow-inner border border-slate-300">
+        <button @click="currentTab = 'today'" :class="currentTab === 'today' ? 'bg-indigo-600 shadow-lg text-white' : 'text-slate-500'" class="flex-1 py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest text-shadow">Aujourd'hui</button>
+        <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-indigo-600 shadow-lg text-white' : 'text-slate-500'" class="flex-1 py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest">📅 Journal</button>
     </div>
 
     <div v-if="currentDay && currentTab === 'today'" class="space-y-6">
@@ -27,87 +31,123 @@
             <div class="flex justify-between items-start mb-6">
                 <div>
                     <h1 class="text-2xl font-black text-indigo-400 italic text-shadow uppercase tracking-tighter">{{ dateLabel }}</h1>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold font-mono">DIET ADAPT V24</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold font-mono">DIET ADAPT V27</p>
                 </div>
                 <button @click="resetCurrentDay" class="text-[9px] bg-red-900/30 text-red-400 px-2 py-1 rounded-lg uppercase font-black hover:bg-red-900/50 transition">Reset</button>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div><p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Consommé</p><p class="text-3xl font-black leading-none">{{ Math.round(totalConsumed) }} <span class="text-xs font-normal text-slate-500 font-mono">kcal</span></p></div>
-                <div class="border-l border-slate-700 pl-4"><p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Reste</p><p class="text-2xl font-bold leading-none" :class="remainingKcal < 0 ? 'text-red-400' : 'text-green-400'">{{ Math.round(remainingKcal) }} <span class="text-xs">kcal</span></p></div>
+            <div class="grid grid-cols-3 gap-2">
+                <div><p class="text-[9px] uppercase text-slate-400 font-bold mb-1">Mangé</p><p class="text-xl font-black leading-none">{{ Math.round(totalConsumed) }}</p></div>
+                <div class="border-l border-slate-700 pl-2"><p class="text-[9px] uppercase text-slate-400 font-bold mb-1">Reste</p><p class="text-xl font-bold leading-none" :class="remainingKcal < 0 ? 'text-red-400' : 'text-green-400'">{{ Math.round(remainingKcal) }}</p></div>
+                <div class="border-l border-slate-700 pl-2"><p class="text-[9px] uppercase text-indigo-400 font-bold mb-1">Dépensé</p><p class="text-xl font-black text-indigo-400 leading-none">{{ Math.round(totalBurned) }}</p></div>
             </div>
         </div>
 
-        <div v-for="meal in allMeals" :key="meal.name" class="space-y-2">
-            <div class="flex justify-between items-end px-2">
-                <h3 class="font-bold text-slate-800 text-lg tracking-tight">{{ meal.name }}</h3>
-                <span v-if="meal.targetKcal > 0" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter font-mono italic">Base : {{ meal.targetKcal }} kcal</span>
+        <div class="flex border-b-2 border-slate-200 gap-2 px-1 no-scrollbar overflow-x-auto">
+            <button @click="subTab = 'meals'" 
+                :class="subTab === 'meals' ? 'border-b-4 border-indigo-600 text-indigo-600 bg-indigo-50/50' : 'text-slate-400'" 
+                class="flex-1 pb-4 pt-2 text-xs font-black uppercase tracking-wider transition-all rounded-t-xl">
+                🍽️ <span class="block mt-1">Repas</span>
+            </button>
+            <button @click="subTab = 'sport'" 
+                :class="subTab === 'sport' ? 'border-b-4 border-indigo-600 text-indigo-600 bg-indigo-50/50' : 'text-slate-400'" 
+                class="flex-1 pb-4 pt-2 text-xs font-black uppercase tracking-wider transition-all rounded-t-xl">
+                ⚡ <span class="block mt-1">Activité</span>
+            </button>
+            <button @click="subTab = 'water'" 
+                :class="subTab === 'water' ? 'border-b-4 border-blue-500 text-blue-500 bg-blue-50/50' : 'text-slate-400'" 
+                class="flex-1 pb-4 pt-2 text-xs font-black uppercase tracking-wider transition-all rounded-t-xl">
+                💧 <span class="block mt-1">Eau</span>
+            </button>
+        </div>
+
+        <div v-if="subTab === 'meals'" class="space-y-6">
+            <div v-for="meal in allMeals" :key="meal.name" class="space-y-2">
+                <div class="flex justify-between items-end px-2">
+                    <h3 class="font-bold text-slate-800 text-lg tracking-tight">{{ meal.name }}</h3>
+                    <span v-if="meal.targetKcal > 0" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter font-mono italic">Base : {{ meal.targetKcal }} kcal</span>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 relative">
+                    <div v-if="!meal.saved && meal.targetKcal > 0" class="bg-indigo-50 px-4 py-2 flex justify-between items-center border-b border-indigo-100 rounded-t-2xl">
+                        <div class="flex items-center gap-2 group relative">
+                            <span class="text-[10px] font-black text-indigo-600 uppercase italic">Objectif Adapté :</span>
+                            <span class="bg-indigo-200 text-indigo-700 w-4 h-4 flex items-center justify-center rounded-full text-[10px] font-black cursor-help">i</span>
+                            <div class="tooltip-box invisible opacity-0 absolute top-full left-0 mt-2 w-72 p-4 bg-slate-800 text-white rounded-xl shadow-2xl z-50 text-[10px]">
+                                <p class="border-b border-slate-600 pb-1 mb-2 font-bold text-indigo-400 uppercase tracking-tighter">Plan Portions :</p>
+                                <div v-for="section in meal.planSections" :key="section.title" class="mb-3">
+                                    <p class="text-indigo-300 font-bold uppercase text-[9px] mb-1 italic border-l-2 border-indigo-500 pl-2">{{ section.title }}</p>
+                                    <div v-for="item in section.choices" class="flex justify-between py-1 border-b border-slate-700/30 last:border-0"><span>{{ item.n }}</span><span class="font-black">{{ calculateQty(meal, item.b) }}g</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-sm font-black text-indigo-700">{{ Math.round(getAdaptedTarget(meal)) }} kcal</span>
+                    </div>
+                    <div class="p-3 space-y-2" :class="{'opacity-40 grayscale': meal.saved}">
+                        <div v-for="(item, i) in meal.items" :key="i" class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                            <div class="flex flex-col"><span class="text-sm font-bold text-slate-700">{{ item.name }}</span><span class="text-[10px] text-slate-500 font-mono">{{ item.qty }}g — {{ Math.round(item.kcal) }} kcal</span></div>
+                            <button @click="removeFood(meal, i)" class="text-slate-300 hover:text-red-500">✕</button>
+                        </div>
+                        <div v-if="!meal.saved" class="pt-2 flex flex-col gap-2 p-3 bg-slate-50/50 rounded-xl border border-dashed border-slate-300">
+                            <input list="foods" v-model="meal.tempFoodName" class="w-full text-sm p-3 bg-white border rounded-lg" placeholder="Chercher un aliment...">
+                            <datalist id="foods"><option v-for="f in sortedDatabase" :key="f.name" :value="f.name"></option></datalist>
+                            <div class="flex gap-2"><input type="number" v-model="meal.tempQty" class="flex-1 text-sm p-3 border rounded-lg" placeholder="Gr"><button @click="addFoodToMeal(meal)" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-black">+</button></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-4 py-4 border-t flex justify-between items-center rounded-b-2xl">
+                        <p class="text-sm font-black text-slate-800 font-mono">{{ Math.round(meal.actualKcal) }} kcal</p>
+                        <button @click="toggleSave(meal)" :class="meal.saved ? 'bg-slate-800 text-white' : 'border-2 border-indigo-600 text-indigo-600'" class="text-xs font-black px-5 py-2.5 rounded-xl transition-all">{{ meal.saved ? '✎ Modifier' : '✓ Valider' }}</button>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 relative" :class="{'ring-2 ring-indigo-500/20 shadow-lg': !meal.saved}">
-                <div v-if="!meal.saved && meal.targetKcal > 0" class="bg-indigo-50 px-4 py-2 flex justify-between items-center border-b border-indigo-100 rounded-t-2xl">
-                    <div class="flex items-center gap-2 group relative">
-                        <span class="text-[10px] font-black text-indigo-600 uppercase italic">Objectif Adapté :</span>
-                        <span class="bg-indigo-200 text-indigo-700 w-4 h-4 flex items-center justify-center rounded-full text-[10px] font-black cursor-help">i</span>
-                        
-                        <div class="tooltip-box invisible opacity-0 absolute top-full left-0 mt-2 w-72 max-h-80 overflow-y-auto p-4 bg-slate-800 text-white rounded-xl shadow-2xl transition-all z-50 text-[10px]">
-                            <p class="border-b border-slate-600 pb-1 mb-2 font-bold text-indigo-400 uppercase tracking-tighter">Plan Portions :</p>
-                            <div v-for="section in meal.planSections" :key="section.title" class="mb-3">
-                                <p class="text-indigo-300 font-bold uppercase text-[9px] mb-1 italic border-l-2 border-indigo-500 pl-2">{{ section.title }}</p>
-                                <div v-for="item in section.choices" class="flex justify-between py-1 border-b border-slate-700/30 last:border-0"><span class="text-slate-300">{{ item.n }}</span><span class="font-black text-white ml-2">{{ calculateQty(meal, item.b) }}g</span></div>
-                            </div>
-                            
-                            <div v-if="meal.name === '🍽️ Déjeuner'" class="mt-2 pt-2 border-t border-slate-600 flex flex-col gap-1 text-slate-400">
-                                <div class="flex justify-between"><span>Légumes :</span> <span class="text-white font-bold">{{ calculateQty(meal, 200) }}g</span></div>
-                                <div class="flex justify-between"><span>Huile :</span> <span class="text-white font-bold">{{ calculateQty(meal, 10) }}g</span></div>
-                                <div class="flex justify-between"><span>Fruit :</span> <span class="text-white font-bold">{{ calculateQty(meal, 100) }}g</span></div>
-                                <div class="flex justify-between"><span>Activia :</span> <span class="text-white font-bold">{{ calculateQty(meal, 125) }}g</span></div>
-                            </div>
-                            <div v-if="meal.name === '🍲 Dîner'" class="mt-2 pt-2 border-t border-slate-600 flex flex-col gap-1 text-slate-400">
-                                <div class="flex justify-between"><span>Légumes :</span> <span class="text-white font-bold">{{ calculateQty(meal, 200) }}g</span></div>
-                                <div class="flex justify-between"><span>Huile :</span> <span class="text-white font-bold">{{ calculateQty(meal, 10) }}g</span></div>
-                                <div class="flex justify-between"><span>Skyr + Miel :</span> <span class="text-white font-bold">{{ calculateQty(meal, 105) }}g</span></div>
-                            </div>
-                            <div v-if="meal.name === '🍳 Petit-Déjeuner'" class="mt-2 pt-1 text-[9px] text-indigo-300 italic border-t border-slate-600">Café + 85ml lait végétal non sucré</div>
-                            <div class="absolute -top-1 left-4 w-2 h-2 bg-slate-800 rotate-45"></div>
-                        </div>
-                    </div>
-                    <span class="text-sm font-black text-indigo-700">{{ Math.round(getAdaptedTarget(meal)) }} kcal</span>
+        </div>
+
+        <div v-if="subTab === 'sport'" class="space-y-4">
+            <h3 class="font-bold text-slate-800 text-lg px-2 italic uppercase tracking-tighter italic font-mono">Sport & Activités</h3>
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col gap-3">
+                    <input type="text" v-model="tempSportName" class="w-full text-sm p-4 bg-slate-50 border rounded-xl" placeholder="Activité (ex: Course, Piscine)">
+                    <input type="number" v-model="tempSportKcal" class="w-full text-sm p-4 bg-slate-50 border rounded-xl" placeholder="Kcal dépensées">
+                    <button @click="addSport" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-all">Ajouter l'activité</button>
                 </div>
-
-                <div class="p-3 space-y-2" :class="{'opacity-40 grayscale': meal.saved}">
-                    <div v-for="(item, i) in meal.items" :key="i" class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                        <div class="flex flex-col"><span class="text-sm font-bold text-slate-700">{{ item.name }}</span><span class="text-[10px] text-slate-500 font-mono">{{ item.qty }}g — {{ Math.round(item.kcal) }} kcal</span></div>
-                        <button @click="removeFood(meal, i)" class="text-slate-300 hover:text-red-500">✕</button>
-                    </div>
-
-                    <div v-if="!meal.saved" class="pt-2 flex flex-col gap-2 p-3 bg-slate-50/50 rounded-xl border border-dashed border-slate-300">
-                        <input list="foods" v-model="meal.tempFoodName" class="w-full text-xs p-2 bg-white border rounded-lg focus:ring-1 ring-indigo-500" placeholder="Chercher un aliment...">
-                        <datalist id="foods">
-                            <option v-for="f in sortedDatabase" :key="f.name" :value="f.name"></option>
-                        </datalist>
-                        <div class="flex gap-2">
-                            <input type="number" v-model="meal.tempQty" class="flex-1 text-xs p-2 border rounded-lg" placeholder="Gr">
-                            <button @click="addFoodToMeal(meal)" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-black">+</button>
-                        </div>
-                    </div>
+                <div v-for="(act, i) in currentDay.activities" :key="i" class="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div><p class="text-sm font-bold text-slate-700">{{ act.name }}</p><p class="text-xs font-black text-indigo-600 font-mono">+ {{ act.kcal }} kcal</p></div>
+                    <button @click="removeSport(i)" class="text-slate-300 hover:text-red-500 p-2">✕</button>
                 </div>
+            </div>
+        </div>
 
-                <div class="bg-slate-50 px-4 py-3 border-t flex justify-between items-center rounded-b-2xl">
-                    <div class="text-[10px] font-bold uppercase tracking-widest text-slate-400"><p>Total Réel</p><p class="text-sm font-black text-slate-800 font-mono">{{ Math.round(meal.actualKcal) }} kcal</p></div>
-                    <button @click="toggleSave(meal)" :class="meal.saved ? 'bg-slate-800 text-white' : 'border-2 border-indigo-600 text-indigo-600'" class="text-[10px] font-black px-4 py-2 rounded-xl">
-                        {{ meal.saved ? '✎ Modifier' : '✓ Valider' }}
+        <div v-if="subTab === 'water'" class="space-y-6">
+            <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 text-center space-y-8">
+                <div class="space-y-1">
+                    <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Hydratation quotidienne</p>
+                    <p class="text-6xl font-black text-slate-800">{{ (currentDay.waterCount * 0.25).toFixed(2) }}<span class="text-xl ml-2 text-slate-300">L</span></p>
+                </div>
+                
+                <div class="flex justify-center items-center py-4">
+                    <button @click="addWater" class="tap-active transition-all group">
+                        <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center border-8 border-blue-100 group-hover:bg-blue-100 shadow-inner">
+                            <span class="text-5xl">🥛</span>
+                        </div>
+                        <p class="mt-4 text-xs font-black text-blue-600 uppercase tracking-tighter">Ajouter 25cl</p>
                     </button>
                 </div>
+
+                <button @click="currentDay.waterCount = 0; save()" class="text-[10px] font-bold text-slate-300 uppercase underline decoration-dashed hover:text-slate-400">Remettre à zéro</button>
             </div>
         </div>
     </div>
 
     <div v-if="currentDay && currentTab === 'history'" class="space-y-4">
         <h2 class="text-xl font-black text-slate-800 px-2 uppercase tracking-tighter italic">Journal</h2>
-        <div v-for="(data, date) in sortedHistory" :key="date" @click="loadDayFromHistory(date)" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex justify-between items-center cursor-pointer hover:border-indigo-400 transition-all active:scale-95">
-            <div class="flex-1"><p class="text-[10px] font-black text-indigo-600 uppercase mb-1 tracking-widest">{{ formatDate(date) }}</p><p class="text-2xl font-black text-slate-800 leading-none mb-2">{{ Math.round(data.totalKcal) }} <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter ml-1">kcal</span></p></div>
-            <div class="text-right">
-                <div :class="data.totalKcal > 1800 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'" class="text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">{{ data.totalKcal > 1800 ? '+' + Math.round(data.totalKcal - 1800) : 'OK' }}</div>
+        <div v-for="(data, date) in sortedHistory" :key="date" @click="loadDayFromHistory(date)" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex justify-between items-center hover:border-indigo-400 transition-all">
+            <div class="flex-1">
+                <p class="text-[10px] font-black text-indigo-600 mb-1 uppercase tracking-widest">{{ formatDate(date) }}</p>
+                <p class="text-2xl font-black text-slate-800 leading-none mb-2">{{ Math.round(data.totalKcal) }} <span class="text-xs text-slate-400">kcal</span></p>
+                <div class="flex gap-4">
+                    <span v-if="data.sportKcal > 0" class="text-[10px] font-bold text-indigo-400 uppercase tracking-tighter">🔥 {{ data.sportKcal }} kcal</span>
+                    <span v-if="data.waterCount > 0" class="text-[10px] font-bold text-blue-400 uppercase tracking-tighter">💧 {{ (data.waterCount * 0.25).toFixed(1) }}L</span>
+                </div>
             </div>
+            <div :class="data.totalKcal > 1800 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'" class="text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">{{ data.totalKcal > 1800 ? '+' + Math.round(data.totalKcal - 1800) : 'OK' }}</div>
         </div>
     </div>
 </div>
@@ -117,11 +157,8 @@ const { createApp } = Vue
 createApp({
     data() {
         return {
-            currentTab: 'today',
-            database: typeof ALIMENTS_STORAGE !== 'undefined' ? ALIMENTS_STORAGE : [],
-            currentDay: null,
-            history: {},
-            targetDaily: 1800
+            currentTab: 'today', subTab: 'meals', database: typeof ALIMENTS_STORAGE !== 'undefined' ? ALIMENTS_STORAGE : [],
+            currentDay: null, history: {}, targetDaily: 1800, tempSportName: '', tempSportKcal: ''
         }
     },
     computed: {
@@ -130,28 +167,25 @@ createApp({
         dateLabel() { if (!this.currentDay) return ''; return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' }).format(new Date(this.currentDay.dateKey || this.todayKey)); },
         allMeals() { return this.currentDay ? [...this.currentDay.meals, this.currentDay.extras] : []; },
         totalConsumed() { return this.allMeals.reduce((s, m) => s + m.actualKcal, 0); },
+        totalBurned() { return this.currentDay && this.currentDay.activities ? this.currentDay.activities.reduce((s, a) => s + a.kcal, 0) : 0; },
         remainingKcal() { return this.targetDaily - this.totalConsumed; },
-        currentDelta() { if(!this.currentDay) return 0; const mDelta = this.currentDay.meals.reduce((d, m) => m.saved ? d + (m.actualKcal - m.targetKcal) : d, 0); return mDelta + this.currentDay.extras.actualKcal; },
+        currentDelta() { if(!this.currentDay) return 0; return this.currentDay.meals.reduce((d, m) => m.saved ? d + (m.actualKcal - m.targetKcal) : d, 0) + this.currentDay.extras.actualKcal; },
         sortedHistory() { return Object.keys(this.history).sort().reverse().reduce((obj, key) => { obj[key] = this.history[key]; return obj; }, {}); }
     },
     methods: {
         initApp() {
-            const saved = localStorage.getItem('diet_v24');
+            const saved = localStorage.getItem('diet_v27');
             if (saved) this.history = JSON.parse(saved);
             if (this.history[this.todayKey]) { this.currentDay = JSON.parse(JSON.stringify(this.history[this.todayKey])); } else { this.resetCurrentDay(); }
         },
         resetCurrentDay() {
             this.currentDay = {
-                dateKey: this.todayKey,
-                totalKcal: 0,
+                dateKey: this.todayKey, totalKcal: 0, sportKcal: 0, activities: [], waterCount: 0,
                 meals: [
-                    { name: "🍳 Petit-Déjeuner", targetKcal: 400, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [{ title: "Base", choices: [{ n: "Pain complet/nordique", b: 45 }, { n: "Œuf (ou 60g Jambon)", b: 100 }, { n: "Graines (ou 30g Avo / 8g Beurre)", b: 10 }, { n: "Fruit", b: 100 }, { n: "Carré frais 0%", b: 25 }] }] },
-                    { name: "🍽️ Déjeuner", targetKcal: 580, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [{ title: "Féculents (1 choix)", choices: [{ n: "Riz cuit", b: 150 }, { n: "Pâtes cuites", b: 150 }, { n: "PdT cuite", b: 190 }, { n: "Patate douce", b: 170 }, { n: "Gnocchi", b: 110 }, { n: "Wrap", b: 70 }, { n: "Pain", b: 85 }] }, { title: "Protéines (1 choix)", choices: [{ n: "Viande/Poisson", b: 140 }, { n: "Tofu", b: 235 }, { n: "PST", b: 170 }, { n: "Légumineuses", b: 125 }] }] },
-                    { name: "☕ Collation", targetKcal: 300, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [{ title: "🥞 Pancakes", choices: [{ n: "Flocons d'avoine", b: 30 }, { n: "Skyr", b: 100 }, { n: "Œuf", b: 50 }, { n: "Chocolat", b: 10 }] }, { title: "🥣 Classique", choices: [{ n: "Skyr", b: 150 }, { n: "Muesli", b: 25 }, { n: "Fruit", b: 100 }] }] },
-                    { name: "🍲 Dîner", targetKcal: 520, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [
-                        { title: "Féculents (1 choix)", choices: [{ n: "Riz cuit", b: 120 }, { n: "Pâtes cuites", b: 120 }, { n: "PdT cuite", b: 130 }, { n: "Pain", b: 70 }] },
-                        { title: "Protéines (1 choix)", choices: [{ n: "Viande/Poisson", b: 140 }, { n: "Tofu", b: 235 }, { n: "PST", b: 170 }] }
-                    ]}
+                    { name: "🍳 Petit-Déjeuner", targetKcal: 400, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [{ title: "Base", choices: [{ n: "Pain complet", b: 45 }, { n: "Œuf", b: 100 }, { n: "Fruit", b: 100 }] }] },
+                    { name: "🍽️ Déjeuner", targetKcal: 580, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [{ title: "Base", choices: [{ n: "Riz cuit", b: 150 }, { n: "Viande", b: 140 }] }] },
+                    { name: "☕ Collation", targetKcal: 300, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [{ title: "Base", choices: [{ n: "Skyr", b: 150 }, { n: "Fruit", b: 100 }] }] },
+                    { name: "🍲 Dîner", targetKcal: 520, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "", planSections: [{ title: "Base", choices: [{ n: "Riz cuit", b: 120 }, { n: "Tofu", b: 235 }] }] }
                 ],
                 extras: { name: "🍬 Extras", targetKcal: 0, items: [], actualKcal: 0, saved: false, tempFoodName: "", tempQty: "" }
             };
@@ -168,9 +202,17 @@ createApp({
                 this.save();
             }
         },
-        removeFood(meal, index) { meal.items.splice(index, 1); meal.actualKcal = meal.items.reduce((s, i) => s + i.kcal, 0); this.save(); },
+        addSport() {
+            if(this.tempSportName && this.tempSportKcal > 0) {
+                this.currentDay.activities.push({ name: this.tempSportName, kcal: parseFloat(this.tempSportKcal) });
+                this.tempSportName = ''; this.tempSportKcal = '';
+                this.save();
+            }
+        },
+        removeSport(i) { this.currentDay.activities.splice(i, 1); this.save(); },
+        addWater() { this.currentDay.waterCount++; this.save(); },
         toggleSave(meal) { meal.saved = !meal.saved; this.save(); },
-        save() { if (this.currentDay) { this.currentDay.totalKcal = this.totalConsumed; this.history[this.currentDay.dateKey || this.todayKey] = JSON.parse(JSON.stringify(this.currentDay)); localStorage.setItem('diet_v24', JSON.stringify(this.history)); } },
+        save() { if (this.currentDay) { this.currentDay.totalKcal = this.totalConsumed; this.currentDay.sportKcal = this.totalBurned; this.history[this.currentDay.dateKey || this.todayKey] = JSON.parse(JSON.stringify(this.currentDay)); localStorage.setItem('diet_v27', JSON.stringify(this.history)); } },
         formatDate(d) { return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' }).format(new Date(d)); },
         loadDayFromHistory(date) { this.currentDay = JSON.parse(JSON.stringify(this.history[date])); this.currentTab = 'today'; }
     },
