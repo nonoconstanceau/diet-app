@@ -41,13 +41,6 @@ const ALIMENTS_STORAGE = [
     { name: "Skyr", kcal100: 57 },
     { name: "Thon (naturel)", kcal100: 100 },
     { name: "Tofu", kcal100: 100 },
-    { name: "Vermicelle de riz", kcal100: 87},
-    { name: "Wasa", kcal100: 330 },
-    { name: "Beurre de cacahuète", kcal100: 643 },
-    { name: "Huile d'olive", kcal100: 899 }, 
-    { name: "Vinaigre balsamique", kcal100: 92 }, 
-    { name: "Salade verte", kcal100: 14 }, 
-    { name: "Avocat", kcal100: 203 },
-    { name: "Wrap", kcal100: 300 }
-
+    { name: "Vermicelle de riz", kcal100: 86.6 },
+    { name: "Wasa", kcal100: 330 }
 ];
