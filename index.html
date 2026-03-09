@@ -110,9 +110,12 @@
                             <transition name="tooltip">
                                 <div v-if="activeTooltip === meal.name" class="absolute top-full left-0 mt-2 w-72 max-h-80 overflow-y-auto p-4 bg-slate-800 text-white rounded-xl shadow-2xl z-50 text-[10px]">
                                     <p class="border-b border-slate-600 pb-1 mb-2 font-bold text-indigo-400 uppercase tracking-tighter italic">Portions suggérées :</p>
-                                    <div v-for="section in meal.planSections" :key="section.title" class="mb-3">
-                                        <p class="text-indigo-300 font-bold uppercase text-[9px] mb-1 italic border-l-2 border-indigo-500 pl-2">{{ section.title }}</p>
-                                        <div v-for="item in section.choices" class="flex justify-between py-1 border-b border-slate-700/30 last:border-0"><span>{{ item.n }}</span><span class="font-black text-white ml-2">{{ calculateQty(meal, item.b) }}g</span></div>
+                                    <div v-for="section in meal.planSections" :key="section.title" class="mb-3 last:mb-0">
+                                        <p class="text-indigo-200 font-bold mb-1">{{ section.title }}</p>
+                                        <div v-for="opt in section.choices" class="flex justify-between border-b border-slate-700/50 py-1">
+                                            <span>{{ opt.n }}</span>
+                                            <span class="font-black text-white ml-2">{{ calculateQty(meal, opt.b) }}g</span>
+                                        </div>
                                     </div>
                                     <div v-if="meal.name === '🍽️ Déjeuner'" class="mt-2 pt-2 border-t border-slate-600 flex flex-col gap-1 text-slate-400">
                                         <div class="flex justify-between"><span>Légumes :</span> <span class="text-white font-bold">{{ calculateQty(meal, 200) }}g</span></div>
@@ -189,20 +192,29 @@
     </div>
 
     <div v-if="currentDay && currentTab === 'history'" class="space-y-4 pb-8">
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <button @click="exportData" class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm text-center active:bg-slate-50 transition"><span class="block text-xl mb-1">📤</span><span class="text-[9px] font-black uppercase tracking-widest text-slate-600">Sauvegarder</span></button>
-            <button @click="triggerImport" class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm text-center active:bg-slate-50 transition"><span class="block text-xl mb-1">📥</span><span class="text-[9px] font-black uppercase tracking-widest text-slate-600">Restaurer</span></button>
-            <input type="file" id="importInput" @change="importData" class="hidden" accept=".json">
-        </div>
-
-        <div v-for="(data, date) in sortedHistory" :key="date" @click="loadDayFromHistory(date)" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex justify-between items-center active:bg-slate-50 transition">
-            <div class="flex-1">
-                <p class="text-[10px] font-black text-indigo-600 mb-1 uppercase tracking-widest">{{ formatDate(date) }}</p>
-                <div class="flex items-baseline gap-3"><p class="text-2xl font-black text-slate-800">{{ Math.round(data.totalKcal) }} <span class="text-xs text-slate-400">kcal</span></p></div>
-            </div>
-            <div class="text-slate-300">❯</div>
-        </div>
+    <div class="grid grid-cols-2 gap-3 mb-6">
+        <button @click="exportData" class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm text-center active:bg-slate-50 transition"><span class="block text-xl mb-1">📤</span><span class="text-[9px] font-black uppercase tracking-widest text-slate-600">Sauvegarder</span></button>
+        <button @click="triggerImport" class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm text-center active:bg-slate-50 transition"><span class="block text-xl mb-1">📥</span><span class="text-[9px] font-black uppercase tracking-widest text-slate-600">Restaurer</span></button>
+        <input type="file" id="importInput" @change="importData" class="hidden" accept=".json">
     </div>
+
+    <div v-for="(data, date) in sortedHistory" :key="date" @click="loadDayFromHistory(date)" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex justify-between items-center active:bg-slate-50 transition">
+        <div class="flex-1">
+            <p class="text-[10px] font-black text-indigo-600 mb-1 uppercase tracking-widest">{{ formatDate(date) }}</p>
+            <div class="flex items-center gap-4">
+                <p class="text-2xl font-black text-slate-800">
+                    {{ Math.round(data.totalKcal || 0) }} 
+                    <span class="text-xs text-slate-400 font-normal">kcal</span>
+                </p>
+                <div v-if="data.activities && data.activities.length > 0" class="flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-lg">
+                    <span class="text-xs">🔥</span>
+                    <span class="text-xs font-black text-orange-600">{{ Math.round(data.activities.reduce((s, a) => s + (parseFloat(a.kcal) || 0), 0)) }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="text-slate-300">❯</div>
+    </div>
+</div>
 </div>
 
 <script src="app.js"></script>
