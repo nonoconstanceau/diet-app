@@ -1,0 +1,9 @@
+.text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.tap-active:active { transform: scale(0.95); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.tooltip-enter-active, .tooltip-leave-active { transition: opacity 0.2s, transform 0.2s; }
+.tooltip-enter-from, .tooltip-leave-to { opacity: 0; transform: translateY(-10px); }
+
+/* Empêche le défilement du corps quand une liste est ouverte sur mobile */
+input:focus { outline: none; }
