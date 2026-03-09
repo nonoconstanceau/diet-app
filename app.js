@@ -20,6 +20,11 @@ createApp({
             if (!this.currentDay) return ''; 
             return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' }).format(new Date(this.currentDay.dateKey || this.todayKey)); 
         },
+        progressPercent() {
+            if (!this.targetDaily || this.targetDaily === 0) return 0;
+            // On calcule le pourcentage (Mangé / Objectif)
+            return (this.totalConsumed / this.targetDaily) * 100;
+        },
         totalConsumed() { 
             if(!this.currentDay) return 0; 
             const m = this.currentDay.meals.reduce((s, m) => s + m.actualKcal, 0);
